@@ -3,7 +3,7 @@ const cors = require("cors");
 const app = express();
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 8000;
 
 app.use(cors());
@@ -46,6 +46,13 @@ async function run() {
       } catch (error) {
         res.status(500).send({ message: "Failed to add doctor", error });
       }
+    });
+
+    app.get("/doctors/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await doctorsCollection.findOne(query);
+      res.send(result);
     });
   } catch (error) {
     console.error("Error connecting to MongoDB", error);
