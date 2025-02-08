@@ -25,6 +25,7 @@ async function run() {
 
     // Collections
     const doctorsCollection = client.db("doctorsdb").collection("doctors");
+    const cartsCollection = client.db("doctorsdb").collection("carts");
     console.log("Connected to MongoDB successfully!");
 
     // GET all doctors
@@ -47,11 +48,26 @@ async function run() {
         res.status(500).send({ message: "Failed to add doctor", error });
       }
     });
-
     app.get("/doctors/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await doctorsCollection.findOne(query);
+      res.send(result);
+    });
+    // add to cart api
+    app.post("/doctors-carts", async (req, res) => {
+      const doctorItem = req.body;
+      const result = await cartsCollection.insertOne(doctorItem);
+      res.send(result);
+    });
+
+    app.get("/doctors-carts/:email", async (req, res) => {
+      const email = req.params.email;
+      console.log("email", email);
+      const query = { email: email };
+      console.log("query", query);
+      const result = await cartsCollection.find(query).toArray();
+      console.log("result", result);
       res.send(result);
     });
   } catch (error) {
