@@ -26,6 +26,7 @@ async function run() {
     // Collections
     const doctorsCollection = client.db("doctorsdb").collection("doctors");
     const cartsCollection = client.db("doctorsdb").collection("carts");
+    const userCollection = client.db("doctorsdb").collection("users");
     console.log("Connected to MongoDB successfully!");
 
     // GET all doctors
@@ -68,6 +69,37 @@ async function run() {
       console.log("query", query);
       const result = await cartsCollection.find(query).toArray();
       console.log("result", result);
+      res.send(result);
+    });
+
+    // user related api
+
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      const query = { email: user.email };
+      const existingUser = await userCollection.findOne(query);
+      if (existingUser) {
+        return res.send({ message: "user already exist" });
+      }
+      const result = await userCollection.insertOne(user);
+      res.send(result);
+    });
+
+    app.get("/users", async (req, res) => {
+      // const user = req.body;
+      const result = await userCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.patch("/users/admin/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          role: "admin",
+        },
+      };
+      const result = await userCollection.updateOne(filter, updatedDoc);
       res.send(result);
     });
   } catch (error) {
