@@ -86,13 +86,14 @@ async function run() {
         res.status(500).send({ message: "Failed to add doctor", error });
       }
     });
+    // single page api
     app.get("/doctors/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await doctorsCollection.findOne(query);
       res.send(result);
     });
-    // add to cart api
+    //user add to cart api
     app.post("/doctors-carts", async (req, res) => {
       const doctorItem = req.body;
       const result = await cartsCollection.insertOne(doctorItem);
@@ -101,17 +102,24 @@ async function run() {
 
     app.get("/doctors-carts/:email", async (req, res) => {
       const email = req.params.email;
-      console.log("email", email);
+      // console.log("email", email);
       const query = { email: email };
-      console.log("query", query);
+      // console.log("query", query);
       const result = await cartsCollection.find(query).toArray();
-      console.log("result", result);
+      // console.log("result", result);
+      res.send(result);
+    });
+
+    app.delete("/doctors-carts/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await cartsCollection.deleteOne(query);
       res.send(result);
     });
 
     // user related api
 
-    app.post("/users", veryfyToken, async (req, res) => {
+    app.post("/users", async (req, res) => {
       const user = req.body;
       const query = { email: user.email };
       const existingUser = await userCollection.findOne(query);
@@ -156,6 +164,13 @@ async function run() {
         admin = user?.role === "admin";
       }
       res.send({ admin });
+    });
+
+    app.delete("/doctors/:id", veryfyToken, veryfyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await doctorsCollection.deleteOne(query);
+      res.send(result);
     });
   } catch (error) {
     console.error("Error connecting to MongoDB", error);
