@@ -5,8 +5,13 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 8000;
+const stripe = require("stripe")(process.env.STRIPE_SECRET);
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Your frontend's URL
+  })
+);
 app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.qlvqjvw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -27,6 +32,7 @@ async function run() {
     const doctorsCollection = client.db("doctorsdb").collection("doctors");
     const cartsCollection = client.db("doctorsdb").collection("carts");
     const userCollection = client.db("doctorsdb").collection("users");
+    const paymentCollection = client.db("doctorsdb").collection("payment");
     console.log("Connected to MongoDB successfully!");
 
     // token related api
