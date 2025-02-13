@@ -93,6 +93,7 @@ async function run() {
       const result = await doctorsCollection.findOne(query);
       res.send(result);
     });
+
     //user add to cart api
     app.post("/doctors-carts", async (req, res) => {
       const doctorItem = req.body;
@@ -110,12 +111,21 @@ async function run() {
       res.send(result);
     });
 
-    app.delete("/doctors-carts/:email", async (req, res) => {
+    app.delete("/doctors-carts/:email", veryfyToken, async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
       const result = await cartsCollection.deleteOne(query);
       res.send(result);
     });
+
+    app.get("/users/:email", veryfyToken, async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await userCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // end
 
     // user related api
 
