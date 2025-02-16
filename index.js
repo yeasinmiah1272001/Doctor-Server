@@ -188,6 +188,37 @@ async function run() {
       const result = await doctorsCollection.deleteOne(query);
       res.send(result);
     });
+    // payment
+    app.post("/create-checkout-session", async (req, res) => {
+      const { fees } = req.body;
+      const amount = parseInt(fees * 100);
+      try {
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount: amount,
+          currency: "usd",
+          payment_method_types: ["card"],
+        });
+        res.send({
+          clientSecret: paymentIntent.client_secret,
+        });
+      } catch (error) {
+        res.status(500).send({ error: error.message });
+      }
+    });
+
+    app.post("/payment", async (req, res) => {
+      const payment = req.body;
+      console.log("payment", payment);
+      const paymentResult = await paymentCollection.insertOne(payment);
+
+      const query = {
+        _id: {
+          $in: payment.cartIds.map((id) => new ObjectId(id)),
+        },
+      };
+      const deleteResult = await cartsCollection.deleteMany(query);
+      res.send({ paymentResult, deleteResult });
+    });
   } catch (error) {
     console.error("Error connecting to MongoDB", error);
   }
