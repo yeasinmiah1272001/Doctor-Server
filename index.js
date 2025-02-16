@@ -219,6 +219,23 @@ async function run() {
       const deleteResult = await cartsCollection.deleteMany(query);
       res.send({ paymentResult, deleteResult });
     });
+
+    // load all payment
+    app.get("/payments/:email", veryfyToken, async (req, res) => {
+      const query = { email: req.params.email };
+
+      // Correct condition for authorization check
+      if (req.params.email !== req.decoded.email) {
+        return res.status(403).send({ message: "forbidden access" });
+      }
+
+      try {
+        const result = await paymentCollection.find(query).toArray();
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ message: "Internal server error" });
+      }
+    });
   } catch (error) {
     console.error("Error connecting to MongoDB", error);
   }
