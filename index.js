@@ -9,7 +9,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET);
 
 app.use(
   cors({
-    origin: "http://localhost:5173", // Your frontend's URL
+    origin: "http://localhost:5173",
   })
 );
 app.use(express.json());
@@ -251,7 +251,6 @@ async function run() {
     app.get("/payments/:email", veryfyToken, async (req, res) => {
       const query = { email: req.params.email };
 
-      // Correct condition for authorization check
       if (req.params.email !== req.decoded.email) {
         return res.status(403).send({ message: "forbidden access" });
       }
