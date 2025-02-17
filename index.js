@@ -9,7 +9,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET);
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://doctor-client-lovat.vercel.app",
   })
 );
 app.use(express.json());
