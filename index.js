@@ -99,6 +99,25 @@ async function run() {
       const result = await doctorsCollection.findOne(query);
       res.send(result);
     });
+    // update
+    app.patch("/doctors/:id", async (req, res) => {
+      const doctors = req.body;
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          name: doctors.name,
+          image: doctors.image,
+          fees: doctors.fees,
+          speciality: doctors.speciality,
+          about: doctors.about,
+          degree: doctors.degree,
+          experience: doctors.experience,
+        },
+      };
+      const result = await doctorsCollection.updateOne(query, updatedDoc);
+      res.send(result);
+    });
 
     //user add to cart api
     app.post("/doctors-carts", async (req, res) => {
@@ -235,6 +254,16 @@ async function run() {
       } catch (error) {
         res.status(500).send({ message: "Internal server error" });
       }
+    });
+
+    // admin state
+    app.get("/admin-states", async (req, res) => {
+      const users = await userCollection.estimatedDocumentCount();
+      const allDoctors = await doctorsCollection.estimatedDocumentCount();
+      const orders = await paymentCollection.estimatedDocumentCount();
+      const payment = await paymentCollection.find().toArray();
+      const revenue = payment.reduce((acc, item) => acc + item.fees, 0);
+      res.send({ users, allDoctors, orders, revenue });
     });
   } catch (error) {
     console.error("Error connecting to MongoDB", error);
