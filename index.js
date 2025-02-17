@@ -108,7 +108,7 @@ async function run() {
         $set: {
           name: doctors.name,
           image: doctors.image,
-          fees: doctors.fees,
+          fees: parseFloat(doctors.fees),
           speciality: doctors.speciality,
           about: doctors.about,
           degree: doctors.degree,
@@ -262,6 +262,11 @@ async function run() {
       } catch (error) {
         res.status(500).send({ message: "Internal server error" });
       }
+    });
+
+    app.get("/payments", async (req, res) => {
+      const result = await paymentCollection.find().toArray();
+      res.send(result);
     });
 
     // admin state
